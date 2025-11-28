@@ -1,0 +1,1212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AYC — Citizen Complaint Portal</title>
+  <style>
+    /* Reset & base */
+    :root{
+      --accent:#0b74ff;
+      --muted:#6b7280;
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --success:#16a34a;
+      --danger:#ef4444;
+      --glass: rgba(255,255,255,0.6);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg),#eef3fb)}
+    header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:transparent;flex-wrap:wrap;gap:8px}
+    .brand{display:flex;gap:10px;align-items:center;flex:1;min-width:0}
+    .logo{height:40px;width:40px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#5dd0ff);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;flex-shrink:0}
+    h1{font-size:16px;margin:0;line-height:1.2}
+    p.lead{margin:0;color:var(--muted);font-size:12px;line-height:1.3}
+    .container{max-width:1100px;margin:12px auto;padding:12px}
+
+    .grid{display:grid;grid-template-columns:1fr;gap:16px}
+    @media (min-width:900px){.grid{grid-template-columns:360px 1fr}}
+
+    .card{background:var(--card);border-radius:10px;padding:16px;box-shadow:0 4px 12px rgba(15,23,42,0.06);margin-bottom:16px}
+    .sidebar .card{position:sticky;top:16px}
+
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:500}
+    input[type=text],input[type=tel],select,textarea,input[type=date]{width:100%;padding:12px 14px;border-radius:8px;border:1px solid #e6eef8;font-size:16px;background:transparent}
+    textarea{min-height:100px;resize:vertical}
+    .row{display:flex;flex-direction:column;gap:10px}
+    @media (min-width:480px){.row{flex-direction:row}}
+    .row .col{flex:1}
+
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 18px;border-radius:10px;border:0;background:var(--accent);color:white;font-weight:600;cursor:pointer;font-size:15px;width:100%;min-height:48px;touch-action:manipulation}
+    .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(11,116,255,0.12)}
+    .muted{color:var(--muted);font-size:13px}
+
+    .section{margin-bottom:14px}
+    .u-sp{height:12px}
+
+    .preview{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+    .preview img, .preview video{width:120px;height:90px;object-fit:cover;border-radius:6px;border:1px solid #e6eef8}
+
+    .status{padding:6px 10px;border-radius:8px;font-weight:600;display:inline-block;font-size:12px}
+    .status.open{background:#fff7ed;color:#92400e}
+    .status.resolved{background:#ecfdf5;color:#065f46}
+
+    footer{padding:16px;text-align:center;color:var(--muted);font-size:12px;line-height:1.4}
+
+    /* nice form headings */
+    .form-title{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;flex-direction:column}
+    @media (min-width:480px){.form-title{flex-direction:row;align-items:center}}
+    .form-title h2{margin:0;font-size:17px}
+    .hint{font-size:12px;color:var(--muted);line-height:1.4}
+
+    .small{font-size:12px;color:var(--muted);line-height:1.4}
+
+    .field-help{font-size:12px;color:#9aa4b2;margin-top:6px;line-height:1.4}
+
+    /* success / error */
+    .toast{position:fixed;right:12px;bottom:12px;left:12px;padding:14px 16px;border-radius:10px;background:#0b74ff;color:white;box-shadow:0 8px 30px rgba(11,116,255,0.12);display:none;z-index:1000;text-align:center}
+    @media (min-width:480px){.toast{left:auto;width:auto}}
+    .toast.show{display:block}
+
+    /* Auth screen */
+    .auth-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 70vh;
+      padding: 16px;
+    }
+    .auth-card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(15,23,42,0.06);
+    }
+    .auth-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .auth-header h2 {
+      margin: 0 0 8px 0;
+      font-size: 20px;
+    }
+    .auth-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .auth-footer {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .auth-footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+    .logout-btn {
+      background: transparent;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      touch-action: manipulation;
+    }
+    .logout-btn:hover {
+      background: rgba(239, 68, 68, 0.05);
+    }
+    
+    /* Role badge */
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 500;
+      margin-left: 8px;
+    }
+    .role-badge.citizen {
+      background: rgba(11, 116, 255, 0.1);
+      color: var(--accent);
+    }
+    .role-badge.member {
+      background: rgba(22, 163, 74, 0.1);
+      color: var(--success);
+    }
+
+    /* Mobile-specific improvements */
+    input, select, textarea {
+      font-size: 16px !important; /* Prevents zoom on iOS */
+    }
+    
+    select {
+      background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%236b7280' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 12px;
+      padding-right: 40px;
+    }
+    
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+    
+    .file-input-wrapper input[type=file] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+    
+    .file-input-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: var(--accent);
+      color: white;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 14px;
+      text-align: center;
+      border: none;
+      width: 100%;
+      touch-action: manipulation;
+    }
+    
+    .file-input-button.ghost {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid rgba(11,116,255,0.12);
+    }
+    
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+    
+    @media (min-width: 480px) {
+      .button-group {
+        flex-direction: row;
+      }
+      
+      .button-group .btn {
+        width: auto;
+        flex: 1;
+      }
+    }
+    
+    /* Header adjustments for mobile */
+    .header-user {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    
+    @media (max-width: 480px) {
+      .header-user {
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 8px;
+      }
+    }
+    
+    /* Required field styling */
+    .required-field::after {
+      content: " *";
+      color: var(--danger);
+    }
+    
+    .field-status {
+      font-size: 12px;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .field-status.valid {
+      color: var(--success);
+    }
+    
+    .field-status.invalid {
+      color: var(--danger);
+    }
+    
+    /* Complaints list styling */
+    .complaints-list {
+      margin-top: 16px;
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #e6eef8;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    
+    .complaint-item {
+      padding: 12px;
+      border-bottom: 1px solid #e6eef8;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      border-radius: 6px;
+    }
+    
+    .complaint-item:hover {
+      background-color: rgba(11, 116, 255, 0.05);
+    }
+    
+    .complaint-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    
+    .complaint-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    
+    .complaint-id {
+      font-size: 11px;
+      color: var(--accent);
+      font-family: monospace;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    
+    .complaint-category {
+      font-weight: 600;
+      color: var(--accent);
+    }
+    
+    .complaint-date {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    
+    .complaint-location {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    
+    .no-complaints {
+      text-align: center;
+      padding: 20px;
+      color: var(--muted);
+      font-style: italic;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: var(--muted);
+    }
+    
+    /* Login type selection */
+    .login-type-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .login-type-btn {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #e6eef8;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    
+    .login-type-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    
+    .login-type-btn:hover:not(.active) {
+      background: rgba(11, 116, 255, 0.05);
+    }
+    
+    /* Auto-fill highlight */
+    .auto-filled {
+      background-color: rgba(22, 163, 74, 0.1);
+      border-color: var(--success);
+      animation: highlight 2s ease;
+    }
+    
+    @keyframes highlight {
+      0% { background-color: rgba(22, 163, 74, 0.3); }
+      100% { background-color: rgba(22, 163, 74, 0.1); }
+    }
+
+    /* Conditional field styling */
+    .conditional-field {
+      display: none;
+    }
+    
+    .conditional-field.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">AYC</div>
+      <div>
+        <h1>AYC — Local Issues</h1>
+        <p class="lead">Report live issues from your area. Officials can respond area-wise.</p>
+      </div>
+    </div>
+    <div class="header-user">
+      <div id="user-info" class="small" style="display: none;">
+        Welcome, <span id="user-name"></span>
+        <span id="user-role" class="role-badge"></span>
+        <span id="user-ward" class="small" style="margin-left: 8px;"></span>
+      </div>
+      <button id="logout-btn" class="logout-btn" onclick="logout()" style="display: none; margin-left: 8px;">Logout</button>
+    </div>
+    <div id="no-user" class="small">Built with ⚡ Pure HTML/CSS/JS</div>
+  </header>
+
+  <main class="container" id="main-content">
+    <!-- Auth Screen (shown by default) -->
+    <div id="auth-screen" class="auth-container">
+      <div class="auth-card">
+        <div class="auth-header">
+          <h2>Welcome to AYC</h2>
+          <p>Please select your login type to continue</p>
+        </div>
+        
+        <div class="login-type-selector">
+          <button class="login-type-btn active" id="login-type-new" onclick="setLoginType('new')">New Registration</button>
+          <button class="login-type-btn" id="login-type-existing" onclick="setLoginType('existing')">Existing User Login</button>
+        </div>
+        
+        <div id="new-user-fields">
+          <div class="section">
+            <label class="required-field">Name</label>
+            <input id="auth-name" type="text" placeholder="Full name" />
+          </div>
+          
+          <div class="section">
+            <label class="required-field">Aadhaar Number</label>
+            <input id="auth-aadhar" type="tel" placeholder="123412341234" maxlength="12" inputmode="numeric" />
+            <div class="small field-help">Aadhaar must be 12 digits. Example: 123412341234</div>
+          </div>
+          
+          <div class="section">
+            <label class="required-field">Phone Number</label>
+            <input id="auth-phone" type="tel" placeholder="9876543210" maxlength="10" inputmode="tel" />
+          </div>
+          
+          <div class="section">
+            <label class="required-field">Ward Number</label>
+            <input id="auth-ward" type="text" placeholder="Ward or local area code" />
+          </div>
+          
+          <div class="section">
+            <label class="required-field">Are you a member of the corporation?</label>
+            <select id="auth-role" onchange="toggleOfficerIdField()">
+              <option value="citizen">No, I'm a citizen</option>
+              <option value="member">Yes, I'm a corporation member</option>
+            </select>
+            <div class="small field-help">Citizens can report issues. Corporation members can post resolutions.</div>
+          </div>
+
+          <!-- Officer ID field - shown only for corporation members -->
+          <div id="officer-id-field" class="section conditional-field">
+            <label class="required-field">Officer ID</label>
+            <input id="auth-officer-id" type="text" placeholder="Enter your official officer ID" />
+            <div class="small field-help">Your official identification number as a corporation member</div>
+          </div>
+        </div>
+        
+        <div id="existing-user-fields" style="display: none;">
+          <div class="section">
+            <label class="required-field">Aadhaar Number</label>
+            <input id="existing-aadhar" type="tel" placeholder="123412341234" maxlength="12" inputmode="numeric" />
+          </div>
+          
+          <div class="section">
+            <label class="required-field">Phone Number</label>
+            <input id="existing-phone" type="tel" placeholder="9876543210" maxlength="10" inputmode="tel" />
+          </div>
+        </div>
+        
+        <div class="section">
+          <button class="btn" style="width: 100%;" onclick="submitAuth()">Continue</button>
+        </div>
+        
+        <div id="auth-msg" class="field-help" style="text-align: center;"></div>
+        
+        <div class="auth-footer">
+          By continuing, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main App (hidden by default) -->
+    <div id="app-content" style="display: none;">
+      <div class="grid">
+        <section class="main">
+          <!-- Complaint Section (for citizens) -->
+          <div id="complaint-section" class="card" style="display: none;">
+            <div class="form-title">
+              <h2>Report Issue</h2>
+              <div class="hint">Photos must be live (use camera). Attach GPS.</div>
+            </div>
+
+            <div class="row">
+              <div class="col">
+                <label class="required-field">Issue Category</label>
+                <select id="category">
+                  <option>Roads</option>
+                  <option>Water</option>
+                  <option>Electricity</option>
+                  <option>Hospitals</option>
+                  <option>Drainage</option>
+                  <option>Garbage</option>
+                  <option>Govt Office</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="col">
+                <label class="required-field">Date</label>
+                <input id="cDate" type="date" />
+              </div>
+            </div>
+
+            <div class="u-sp"></div>
+
+            <label class="required-field">Message / Description</label>
+            <textarea id="cMsg" placeholder="Describe the problem in a few lines"></textarea>
+
+            <div class="row" style="margin-top:8px">
+              <div class="col">
+                <label class="required-field">Capture Photo (camera only)</label>
+                <div class="file-input-wrapper">
+                  <input id="photoInput" type="file" accept="image/*" capture="environment" required />
+                  <div class="file-input-button" id="photoButton">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                      <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                    Take Photo *
+                  </div>
+                </div>
+                <div id="photoStatus" class="field-status invalid">Photo required</div>
+                <div class="small field-help">Using the camera is required. Photo must be taken live.</div>
+              </div>
+              <div class="col">
+                <label>Capture Video (optional)</label>
+                <div class="file-input-wrapper">
+                  <input id="videoInput" type="file" accept="video/*" capture="camcorder" />
+                  <div class="file-input-button ghost">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M23 7l-7 5 7 5V7z"></path>
+                      <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                    </svg>
+                    Record Video
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="u-sp"></div>
+
+            <div>
+              <label class="required-field">Attach Current Location</label>
+              <button class="btn" onclick="attachLocation()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                Attach Current Location *
+              </button>
+              <div id="locationStatus" class="field-status invalid">Location required</div>
+              <span id="locDisplay" class="small" style="display:block; margin-top:8px; text-align:center">No location attached</span>
+            </div>
+
+            <div class="u-sp"></div>
+
+            <div class="preview" id="mediaPreview"></div>
+
+            <div class="button-group">
+              <button class="btn" onclick="submitComplaint()">Submit Complaint</button>
+              <button class="btn ghost" onclick="resetComplaint()">Reset</button>
+            </div>
+
+            <div id="complaintMsg" class="field-help" style="text-align: center;"></div>
+          </div>
+
+          <!-- Resolution Section (for corporation members) -->
+          <div id="resolve-section" class="card" style="display: none;">
+            <div class="form-title">
+              <h2>Post Resolution / Update</h2>
+            </div>
+
+            <div class="section">
+              <button class="btn ghost" onclick="fetchAssignedComplaints()" style="margin-bottom: 16px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                Fetch Assigned Complaints
+              </button>
+              
+              <div id="complaints-container">
+                <div class="complaints-list" id="complaints-list">
+                  <div class="no-complaints">No complaints fetched yet. Click the button above to retrieve assigned complaints.</div>
+                </div>
+              </div>
+            </div>
+
+            <label class="required-field">Complaint ID to Resolve</label>
+            <input id="resolve-complaint-id" type="text" placeholder="Enter complaint ID from the list above" />
+
+            <label class="required-field">Message</label>
+            <textarea id="rMsg" placeholder="Describe the action taken"></textarea>
+
+            <div class="row" style="margin-top:8px">
+              <div class="col">
+                <label class="required-field">Date</label>
+                <input id="rDate" type="date" />
+              </div>
+              <div class="col">
+                <label class="required-field">Upload Photo (evidence)</label>
+                <div class="file-input-wrapper">
+                  <input id="rPhoto" type="file" accept="image/*" capture="environment" required />
+                  <div class="file-input-button" id="resolvePhotoButton">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                      <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                    Take Photo *
+                  </div>
+                </div>
+                <div id="resolvePhotoStatus" class="field-status invalid">Photo required</div>
+              </div>
+            </div>
+
+            <div class="button-group" style="margin-top:12px">
+              <button class="btn" onclick="submitResolve()">Post Update</button>
+              <button class="btn ghost" onclick="resetResolve()">Reset</button>
+            </div>
+
+            <div id="resolveMsg" class="field-help" style="text-align: center;"></div>
+          </div>
+
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast">Saved</div>
+
+  <footer>
+    <div>Tip: Serve this file over HTTPS for camera & location support. Backend must enable CORS for cross-origin requests.</div>
+  </footer>
+
+  <script>
+    // UUID generation function
+    function generateUUID() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    // Toggle officer ID field based on role selection
+    function toggleOfficerIdField() {
+      const roleSelect = document.getElementById('auth-role');
+      const officerIdField = document.getElementById('officer-id-field');
+      
+      if (roleSelect.value === 'member') {
+        officerIdField.classList.add('show');
+      } else {
+        officerIdField.classList.remove('show');
+        document.getElementById('auth-officer-id').value = '';
+      }
+    }
+
+    // Login type selection
+    let currentLoginType = 'new';
+    
+    function setLoginType(type) {
+      currentLoginType = type;
+      document.getElementById('login-type-new').classList.toggle('active', type === 'new');
+      document.getElementById('login-type-existing').classList.toggle('active', type === 'existing');
+      document.getElementById('new-user-fields').style.display = type === 'new' ? 'block' : 'none';
+      document.getElementById('existing-user-fields').style.display = type === 'existing' ? 'block' : 'none';
+    }
+
+    // Check if user is already logged in
+    base_url="https://codersmitramandal.shop"
+    document.addEventListener('DOMContentLoaded', function() {
+      const user = localStorage.getItem('ayc_user');
+      if (user) {
+        showApp();
+        const userData = JSON.parse(user);
+        document.getElementById('user-name').textContent = userData.name;
+        document.getElementById('user-role').textContent = userData.role === 'member' ? 'Corporation Member' : 'Citizen';
+        document.getElementById('user-role').className = `role-badge ${userData.role}`;
+        document.getElementById('user-ward').textContent = `Ward: ${userData.ward}`;
+        document.getElementById('logout-btn').style.display = 'inline-block';
+        
+        // Show appropriate section based on role
+        if (userData.role === 'member') {
+          document.getElementById('resolve-section').style.display = 'block';
+        } else {
+          document.getElementById('complaint-section').style.display = 'block';
+        }
+      }
+      
+      // Set today's date as default for date inputs
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('cDate').value = today;
+      document.getElementById('rDate').value = today;
+    });
+
+    // --- Helpers ---
+    function scrollToForm(id){document.getElementById(id).scrollIntoView({behavior:'smooth',block:'center'})}
+
+    function showToast(text='Done'){
+      const t=document.getElementById('toast');t.textContent=text;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)
+    }
+
+    function validateAadhaar(a){return /^\d{12}$/.test(a)}
+    function validatePhone(p){return /^\d{10}$/.test(p)}
+
+    function resetAuth() {
+      ['auth-name','auth-aadhar','auth-phone','auth-ward','auth-officer-id'].forEach(id=>document.getElementById(id).value='');
+      ['existing-aadhar','existing-phone'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('auth-msg').textContent='';
+      // Reset officer ID field visibility
+      document.getElementById('officer-id-field').classList.remove('show');
+    }
+
+    function resetComplaint(){
+      ['cMsg','cDate'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('mediaPreview').innerHTML='';
+      document.getElementById('locDisplay').textContent='No location attached';
+      document.getElementById('photoStatus').textContent = 'Photo required';
+      document.getElementById('photoStatus').className = 'field-status invalid';
+      document.getElementById('locationStatus').textContent = 'Location required';
+      document.getElementById('locationStatus').className = 'field-status invalid';
+      window._attachedLocation=null;
+      window._complaintPhoto = null;
+      window._complaintVideo = null;
+      // Reset file inputs
+      document.getElementById('photoInput').value = '';
+      document.getElementById('videoInput').value = '';
+    }
+    
+    function resetResolve(){
+      ['rMsg','rDate'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('resolve-complaint-id').value = '';
+      document.getElementById('resolveMsg').textContent='';
+      document.getElementById('rPhoto').value='';
+      document.getElementById('resolvePhotoStatus').textContent = 'Photo required';
+      document.getElementById('resolvePhotoStatus').className = 'field-status invalid';
+      window._resolvePhoto = null;
+    }
+
+    // Convert file -> base64
+    function fileToBase64(file){
+      return new Promise((resolve,reject)=>{
+        const reader=new FileReader();
+        reader.onload=()=>resolve(reader.result.split(',')[1]);
+        reader.onerror=reject;
+        reader.readAsDataURL(file);
+      })
+    }
+
+    // location attachment
+    async function attachLocation(){
+      const disp=document.getElementById('locDisplay');
+      const status = document.getElementById('locationStatus');
+      if(!navigator.geolocation){
+        disp.textContent='Geolocation not supported';
+        status.textContent = 'Geolocation not supported';
+        status.className = 'field-status invalid';
+        return;
+      }
+      disp.textContent='Fetching…';
+      status.textContent = 'Fetching location...';
+      status.className = 'field-status';
+      navigator.geolocation.getCurrentPosition(pos=>{
+        const lat=pos.coords.latitude.toFixed(6), lon=pos.coords.longitude.toFixed(6);
+        window._attachedLocation={lat,lon};
+        disp.textContent=`Location: ${lat}, ${lon}`;
+        status.textContent = 'Location attached ✓';
+        status.className = 'field-status valid';
+        showToast('Location attached')
+      },err=>{
+        disp.textContent='Location denied or unavailable';
+        status.textContent = 'Location required';
+        status.className = 'field-status invalid';
+        console.error(err);
+      })
+    }
+
+    // Auto-fill complaint ID
+    function autoFillComplaintId(complaintId) {
+      const inputField = document.getElementById('resolve-complaint-id');
+      inputField.value = complaintId;
+      inputField.classList.add('auto-filled');
+      setTimeout(() => {
+        inputField.classList.remove('auto-filled');
+      }, 2000);
+      showToast(`Complaint ID ${complaintId} auto-filled`);
+    }
+
+    // Auth submit
+    async function submitAuth(){
+      const msg=document.getElementById('auth-msg');
+      
+      if (currentLoginType === 'new') {
+        // New Registration - use /ayc/login
+        const name=document.getElementById('auth-name').value.trim();
+        const aadhar=document.getElementById('auth-aadhar').value.trim();
+        const phone=document.getElementById('auth-phone').value.trim();
+        const ward=document.getElementById('auth-ward').value.trim();
+        const role=document.getElementById('auth-role').value;
+        const officerId=document.getElementById('auth-officer-id').value.trim();
+        
+        // Validate required fields
+        if(!name||!aadhar||!phone||!ward){msg.textContent='Please fill all required fields';return}
+        if(!validateAadhaar(aadhar)){msg.textContent='Aadhaar must be 12 digits';return}
+        if(!validatePhone(phone)){msg.textContent='Phone must be 10 digits';return}
+        
+        // Validate officer ID for corporation members
+        if(role === 'member' && !officerId){msg.textContent='Officer ID is required for corporation members';return}
+
+        // Generate UUID for ALL users
+        const user_uuid = generateUUID();
+        
+        // Convert role to type (1 for member, 0 for citizen)
+        const user_type = role === 'member' ? 1 : 0;
+        
+        const payload={
+          uuid: user_uuid,
+          name: name,
+          aadhar_no: aadhar,
+          phone_no: phone,
+          ward_no: ward,
+          type: user_type
+        };
+
+        // Add officer_id to payload if it's a corporation member
+        if (role === 'member') {
+          payload.officer_id = officerId;
+        }
+
+        try{
+          const res=await fetch(base_url+'/ayc/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+          if(!res.ok) throw new Error(await res.text());
+          const data=await res.json();
+          
+          // Store user data in localStorage
+          const userData = {
+            name: name,
+            aadhar: aadhar,
+            phone: phone,
+            ward: ward,
+            role: role,
+            user_uuid: user_uuid
+          };
+          
+          // Store officer ID if applicable
+          if (role === 'member') {
+            userData.officer_id = officerId;
+          }
+          
+          localStorage.setItem('ayc_user', JSON.stringify(userData));
+          
+          // Show the app
+          showApp();
+          document.getElementById('user-name').textContent = name;
+          document.getElementById('user-role').textContent = role === 'member' ? 'Corporation Member' : 'Citizen';
+          document.getElementById('user-role').className = `role-badge ${role}`;
+          document.getElementById('user-ward').textContent = `Ward: ${ward}`;
+          document.getElementById('logout-btn').style.display = 'inline-block';
+          
+          // Show appropriate section based on role
+          if (role === 'member') {
+            document.getElementById('resolve-section').style.display = 'block';
+            showToast('Welcome Corporation Member!');
+          } else {
+            document.getElementById('complaint-section').style.display = 'block';
+            showToast('Welcome!');
+          }
+          
+        }catch(e){
+          console.error(e);
+          msg.textContent='Server error: '+(e.message||e);
+        }
+      } else {
+        // Existing User Login - use /ayc/verify
+        const aadhar=document.getElementById('existing-aadhar').value.trim();
+        const phone=document.getElementById('existing-phone').value.trim();
+        
+        if(!aadhar||!phone){msg.textContent='Please fill all required fields';return}
+        if(!validateAadhaar(aadhar)){msg.textContent='Aadhaar must be 12 digits';return}
+        if(!validatePhone(phone)){msg.textContent='Phone must be 10 digits';return}
+
+        const verifyPayload = {
+          aadhar_no: aadhar,
+          phone_no: phone
+        };
+
+        try {
+          const res = await fetch(base_url+'/ayc/verify', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(verifyPayload)
+          });
+          
+          if(!res.ok) throw new Error(await res.text());
+          const verifyData = await res.json();
+          
+          // Check if user is valid
+          if (!verifyData.valid) {
+            msg.textContent = 'Invalid credentials. Please check your Aadhaar and phone number.';
+            return;
+          }
+          
+          // For existing users, we would fetch complete user data from backend
+          // For demo, we'll use mock data with the UUID from verification
+          const userData = {
+            name: "Existing User", // This would come from backend in real implementation
+            aadhar: aadhar,
+            phone: phone,
+            ward: "Ward 1", // This would come from backend
+            role: "citizen", // This would come from backend
+            user_uuid: verifyData.uuid
+          };
+          
+          // Store user data in localStorage
+          localStorage.setItem('ayc_user', JSON.stringify(userData));
+          
+          // Show the app
+          showApp();
+          document.getElementById('user-name').textContent = userData.name;
+          document.getElementById('user-role').textContent = userData.role === 'member' ? 'Corporation Member' : 'Citizen';
+          document.getElementById('user-role').className = `role-badge ${userData.role}`;
+          document.getElementById('user-ward').textContent = `Ward: ${userData.ward}`;
+          document.getElementById('logout-btn').style.display = 'inline-block';
+          
+          // Show appropriate section based on role
+          if (userData.role === 'member') {
+            document.getElementById('resolve-section').style.display = 'block';
+            showToast('Welcome back Corporation Member!');
+          } else {
+            document.getElementById('complaint-section').style.display = 'block';
+            showToast('Welcome back!');
+          }
+          
+        } catch(e) {
+          console.error(e);
+          msg.textContent = 'Server error: ' + (e.message || e);
+        }
+      }
+    }
+
+    function showApp() {
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('app-content').style.display = 'block';
+      document.getElementById('user-info').style.display = 'block';
+      document.getElementById('no-user').style.display = 'none';
+    }
+
+    function logout() {
+      localStorage.removeItem('ayc_user');
+      document.getElementById('auth-screen').style.display = 'flex';
+      document.getElementById('app-content').style.display = 'none';
+      document.getElementById('user-info').style.display = 'none';
+      document.getElementById('logout-btn').style.display = 'none';
+      document.getElementById('no-user').style.display = 'block';
+      document.getElementById('complaint-section').style.display = 'none';
+      document.getElementById('resolve-section').style.display = 'none';
+      resetAuth();
+      resetComplaint();
+      resetResolve();
+      showToast('Logged out');
+    }
+
+    // Preview media
+    document.getElementById('photoInput').addEventListener('change',async function(e){
+      const p=document.getElementById('mediaPreview');
+      const status = document.getElementById('photoStatus');
+      p.innerHTML='';
+      const f=this.files[0];
+      if(!f) {
+        status.textContent = 'Photo required';
+        status.className = 'field-status invalid';
+        return;
+      }
+      const img=document.createElement('img');
+      img.src=URL.createObjectURL(f);
+      p.appendChild(img);
+      // store file for submission
+      window._complaintPhoto=f;
+      status.textContent = 'Photo attached ✓';
+      status.className = 'field-status valid';
+    })
+    
+    document.getElementById('videoInput').addEventListener('change',async function(e){
+      const p=document.getElementById('mediaPreview');
+      const f=this.files[0];
+      if(!f) return;
+      const v=document.createElement('video');
+      v.src=URL.createObjectURL(f);
+      v.controls=true;
+      v.muted=true;
+      v.autoplay=false;
+      v.playsInline=true;
+      v.width=120;
+      v.height=90;
+      p.appendChild(v);
+      window._complaintVideo=f;
+    })
+
+    // Complaint submit - UPDATED to include ward number
+    async function submitComplaint(){
+      const msg=document.getElementById('cMsg').value.trim();
+      const date=document.getElementById('cDate').value||new Date().toISOString().slice(0,10);
+      const category=document.getElementById('category').value;
+      const loc=window._attachedLocation||null;
+      const display=document.getElementById('complaintMsg');
+
+      // Validate required fields
+      if(!msg){display.textContent='Please describe the issue';return}
+      if(!loc){
+        display.textContent='Please attach your current location before submitting';
+        document.getElementById('locationStatus').textContent = 'Location required';
+        document.getElementById('locationStatus').className = 'field-status invalid';
+        return;
+      }
+      if(!window._complaintPhoto){
+        display.textContent='Please attach a photo before submitting';
+        document.getElementById('photoStatus').textContent = 'Photo required';
+        document.getElementById('photoStatus').className = 'field-status invalid';
+        return;
+      }
+
+      // Generate UUID for the complaint
+      const complaint_uuid = generateUUID();
+      
+      let base64='';
+      if(window._complaintPhoto){base64=await fileToBase64(window._complaintPhoto)}
+      else if(window._complaintVideo){base64=await fileToBase64(window._complaintVideo)}
+
+      const user = JSON.parse(localStorage.getItem('ayc_user'));
+      
+      if (!user) {
+        display.textContent = 'Please login again';
+        return;
+      }
+
+      // Check if ward number exists
+      if (!user.ward) {
+        display.textContent = 'Ward information not found. Please login again.';
+        return;
+      }
+      
+      // Create payload with ward number
+      const payload={
+        complaint_uuid: complaint_uuid,
+        user_uuid: user.user_uuid,
+        lat:String(loc.lat),
+        long:String(loc.lon),
+        date:date,
+        mssg: `${category}: ${msg}`,
+        base_64:base64,
+        ward_no: user.ward  // Include ward number in complaint submission
+      };
+
+      // Log the payload for debugging (remove in production)
+      console.log('Submitting complaint with payload:', {...payload, base_64: '...base64 data...'});
+
+      try{
+        const res=await fetch(base_url+'/ayc/complaint',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify(payload)
+        });
+        
+        if(!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText);
+        }
+        
+        const data=await res.json();
+        display.textContent=`Complaint submitted successfully. ID: ${complaint_uuid}`;
+        showToast('Complaint sent')
+        resetComplaint();
+      }catch(e){
+        console.error('Complaint submission error:', e);
+        display.textContent='Server error: '+(e.message||e);
+      }
+    }
+
+    // Resolve submit
+    document.getElementById('rPhoto').addEventListener('change',async function(){
+      const f=this.files[0]; 
+      const status = document.getElementById('resolvePhotoStatus');
+      if(!f) {
+        status.textContent = 'Photo required';
+        status.className = 'field-status invalid';
+        return;
+      }
+      window._resolvePhoto=f;
+      status.textContent = 'Photo attached ✓';
+      status.className = 'field-status valid';
+    })
+
+    async function submitResolve(){
+      const complaintId = document.getElementById('resolve-complaint-id').value.trim();
+      const msg=document.getElementById('rMsg').value.trim();
+      const date=document.getElementById('rDate').value||new Date().toISOString().slice(0,10);
+      const display=document.getElementById('resolveMsg');
+      
+      // Validate required fields
+      if(!complaintId){display.textContent='Please enter the complaint ID';return}
+      if(!msg){display.textContent='Please write an update message';return}
+      if(!window._resolvePhoto){
+        display.textContent='Please attach a photo as proof before submitting';
+        document.getElementById('resolvePhotoStatus').textContent = 'Photo required';
+        document.getElementById('resolvePhotoStatus').className = 'field-status invalid';
+        return;
+      }
+      
+      const user = JSON.parse(localStorage.getItem('ayc_user'));
+      const base64=await fileToBase64(window._resolvePhoto);
+      const payload={
+        complaint_id: complaintId,
+        member_uuid: user.user_uuid,
+        base_64:base64,
+        date:date,
+        mssg:msg
+      };
+      try{
+        const res=await fetch(base_url+'/ayc/resolve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+        if(!res.ok) throw new Error(await res.text());
+        await res.json();
+        display.textContent='Update posted successfully';
+        showToast('Update posted')
+        resetResolve();
+      }catch(e){console.error(e);display.textContent='Server error: '+(e.message||e)}
+    }
+
+    // Fetch assigned complaints for corporation members
+    async function fetchAssignedComplaints() {
+  const user = JSON.parse(localStorage.getItem('ayc_user'));
+  if (!user || user.role !== 'member') {
+    showToast('Only corporation members can fetch complaints');
+    return;
+  }
+
+  const complaintsList = document.getElementById('complaints-list');
+  complaintsList.innerHTML = '<div class="loading">Loading assigned complaints...</div>';
+
+  try {
+    // Prepare payload with corporation member UUID
+    const payload = {
+      member_uuid: user.user_uuid
+    };
+
+    // Make API call to fetch complaints
+    const res = await fetch(base_url + '/ayc/fetchcomplaint', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error(await res.text());
+
+    const complaintsData = await res.json();
+
+    // Log the JSON response to console
+    console.log('Complaints API Response:', complaintsData);
+
+    // Handle the response data
+    if (!complaintsData || complaintsData.length === 0) {
+      complaintsList.innerHTML = '<div class="no-complaints">No complaints assigned to you at this time.</div>';
+      showToast('No complaints found');
+    } else {
+      // Render the complaints list
+      complaintsList.innerHTML = complaintsData.map(complaint => `
+        <div class="complaint-item" onclick="autoFillComplaintId('${complaint.id || complaint.complaint_id || complaint.uuid}')">
+          <div class="complaint-header">
+            <div>
+              <div class="complaint-category">${complaint.category || 'General'}</div>
+              <div class="complaint-id">ID: ${complaint.id || complaint.complaint_id || complaint.uuid}</div>
+            </div>
+            <div class="complaint-date">${complaint.date || 'No date'}</div>
+          </div>
+          <div>${complaint.message || complaint.mssg || 'No description'}</div>
+          <div class="complaint-location">
+            Location: ${complaint.location || (complaint.lat && complaint.long ? `${complaint.lat}, ${complaint.long}` : 'No location')}
+          </div>
+          ${complaint.base_64 ? `<div class="complaint-image">
+            <img src="data:image/png;base64,${complaint.base_64}" alt="Complaint Image" style="max-width:100%;height:auto;"/>
+          </div>` : ''}
+          <div class="status ${(complaint.status || 'open') === 'open' ? 'open' : 'resolved'}">${complaint.status || 'open'}</div>
+        </div>
+      `).join('');
+
+      showToast(`Loaded ${complaintsData.length} complaint(s)`);
+    }
+
+  } catch (e) {
+    console.error('Error fetching complaints:', e);
+    complaintsList.innerHTML = '<div class="no-complaints">Error loading complaints. Please try again.</div>';
+    showToast('Error fetching complaints');
+  }
+}
+
+
+    // UX: warn when page doesn't use HTTPS (camera/geolocation often require HTTPS)
+    if(location.protocol!=='https:' && location.hostname!=='localhost'){
+      console.warn('Camera & location APIs may require HTTPS. Serve over HTTPS for full functionality.');
+    }
+  </script>
+</body>
+</html>
